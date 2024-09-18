@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking for Dinner</title>
+    <style>
+        input[type="text"], input[type="tel"] {
+            display: block;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .error {
+            border: 1px solid red;
+            background-color: #fdd;
+        }
+        .valid {
+            border: 1px solid green;
+            background-color: #fff;
+        }
+        #message {
+            color: red;
+            margin-top: 10px;
+        }
+        #submit {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: grey;
+            color: white;
+            border: none;
+            cursor: not-allowed;
+        }
+        #submit.enabled {
+            background-color: green;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <form id="bookingForm">
+        <h2>Booking place for your dinner!</h2>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter full name">
+
+        <label for="phone">Phone number:</label>
+        <input type="tel" id="phone" placeholder="Enter phone number">
+
+        <label>Select a time:</label>
+        <input type="radio" name="time" value="05:00"> 05:00
+        <input type="radio" name="time" value="06:00"> 06:00
+        <input type="radio" name="time" value="07:00" checked> 07:00
+        <input type="radio" name="time" value="08:00"> 08:00
+
+        <p>What would you like to have with us?</p>
+        <input type="checkbox" name="menu" value="Starters"> Starters
+        <input type="checkbox" name="menu" value="Main Course"> Main Course
+        <input type="checkbox" name="menu" value="Desserts"> Desserts
+        <input type="checkbox" name="menu" value="Drinks"> Drinks
+
+        <button type="button" id="submit" disabled>Submit</button>
+        <div id="message"></div>
+        <div id="result"></div>
+    </form>
+
+    <script>
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const submitButton = document.getElementById('submit');
+        const message = document.getElementById('message');
+        const result = document.getElementById('result');
+
+        let nameValid = false;
+        let phoneValid = false;
+
+        // Validate name
+        nameInput.addEventListener('blur', () => {
+            const name = nameInput.value.trim();
+            if (name === '') {
+                nameInput.classList.add('error');
+                nameInput.classList.remove('valid');
+                message.textContent = 'Error: Name is empty.';
+                nameValid = false;
+            } else if (!name.includes(' ') || name.split(' ').length < 2) {
+                nameInput.classList.add('error');
+                nameInput.classList.remove('valid');
+                message.textContent = 'Error: First and last names are required.';
+                nameValid = false;
+            } else {
+                nameInput.classList.remove('error');
+                nameInput.classList.add('valid');
+                message.textContent = '';
+                nameValid = true;
+            }
+            enableSubmit();
+        });
+
+        // Validate phone
+        phoneInput.addEventListener('blur', () => {
+            const phone = phoneInput.value.trim();
+            const phoneRegex = /^[0-9][0-9a-zA-Z]{5}$/;
+            if (phone === '') {
+                phoneInput.classList.add('error');
+                phoneInput.classList.remove('valid');
+                message.textContent = 'Error: Phone number is empty.';
+                phoneValid = false;
+            } else if (!phoneRegex.test(phone)) {
+                phoneInput.classList.add('error');
+                phoneInput.classList.remove('valid');
+                message.textContent = 'Error: Phone number must be exactly 6 characters and start with a number.';
+                phoneValid = false;
+            } else {
+                phoneInput.classList.remove('error');
+                phoneInput.classList.add('valid');
+                message.textContent = '';
+                phoneValid = true;
+            }
+            enableSubmit();
+        });
+
+        // Enable submit if both name and phone are valid
+        function enableSubmit() {
+            if (nameValid && phoneValid) {
+                submitButton.disabled = false;
+                submitButton.classList.add('enabled');
+                submitButton.style.cursor = "pointer";
+            } else {
+                submitButton.disabled = true;
+                submitButton.classList.remove('enabled');
+                submitButton.style.cursor = "not-allowed";
+            }
+        }
+
+        // Handle form submission
+        submitButton.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const time = document.querySelector('input[name="time"]:checked').value;
+            const selectedMenuItems = document.querySelectorAll('input[name="menu"]:checked');
+            let menuText = Array.from(selectedMenuItems).map(item => item.value).join(', ');
+
+            if (!menuText) {
+                menuText = 'No items selected';
+            }
+
+            // Display the result
+            result.textContent = `Reservation for: ${name}, Phone: (${phone}) at ${time}. Starters are: ${menuText}`;
+
+            // Refresh the page after 3 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000); // 3 seconds delay
+        });
+    </script>
+</body>
+</html>
